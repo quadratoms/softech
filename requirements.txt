@@ -1,0 +1,9 @@
+pip==20.3
+django==3.1.5
+django-gtts
+django-ckeditor==6.0.0
+qrcode
+pillow
+pyzbar
+googletrans==3.1.0a0
+python-weather

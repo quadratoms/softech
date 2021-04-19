@@ -1,0 +1,77 @@
+<div class="home-info">
+  <div class="subscribe-form">
+    <form action="" method="POST">
+      <textarea
+        name="sentence"
+        cols="40"
+        rows="3"
+        required=""
+        id="sentence"
+        onchange="checklang(value)"
+      ></textarea>
+      
+      <label for="language">Detected language:</label>
+      <select name="language" id="language">
+        {% for language in lang %}
+
+        <option value="{{language.short}}">{{language.short}}</option>
+        {% endfor %}
+      </select>
+      <b>
+      <label for="language-to">Translate to:</label>
+      <select name="language-to" id="language-to">
+        {% for language in lang %}
+
+        <option value="{{language.short}}">{{language.short}}</option>
+        {% endfor %}
+      </select>
+      <div class="btn btn-info" onclick="translatetext()">Translate</div>
+    </form>
+  </div>
+  <div id="tr" style="border-width: 10; border-color: bisque"></div>
+</div>
+<script>
+  function checklang(sentence) {
+    fetch("http://127.0.0.1:8000/detect/", {
+      method: "POST",
+      body: JSON.stringify({
+        sentence: sentence,
+      }),
+      headers: {},
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        let langselector = document.getElementById("language");
+        langselector.value = data["lang"];
+      });
+  }
+
+  function translatetext() {
+    let detect = document.getElementById("language").value;
+    let selectedlang = document.getElementById("language-to").value;
+    let sentence = document.getElementById("sentence").value;
+    console.log(sentence);
+    fetch("http://127.0.0.1:8000/translate/", {
+      method: "POST",
+      body: JSON.stringify({
+        text: sentence,
+        dest: selectedlang,
+        src: detect,
+      }),
+      headers: {},
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        let langselector = document.getElementById("tr");
+        langselector.innerHTML ='<h3>Translated text</h3>\
+<p class="m-5" style="background-color: bisque; border-radius: 5px">\
+    '+data.text+'\
+    </p>\
+    <h3>Translated pronuncition</h3>\
+    <p class="card-test" style="background-color: bisque">\
+      '+data.pronunciation+'\
+    </p>';
+      });
+        console.log(data);
+  }
+</script>
