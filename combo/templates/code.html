@@ -1,0 +1,107 @@
+<div class="container">
+  <div class="row">
+    <div class="col-sm-6">
+      <div class="home-info">
+        <div class="subscribe-form">
+          <form action="">
+            <p>
+              <textarea
+                name="texttoq"
+                id="texttoq"
+                cols="30"
+                rows="2"
+              ></textarea>
+            </p>
+            <p>
+              <label for="textpq" style="cursor: pointer"
+                >Text to convert:</label
+              >
+            </p>
+            <div class="btn btn-info" onclick="convert()">Convert</div>
+          </form>
+          <div id="img"></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6">
+      <div class="home-info">
+        <div class="subscribe-form">
+          <form action="">
+            <p>
+              <input
+                type="file"
+                accept="image/*"
+                name="image"
+                id="file"
+                onchange="loadFile(event)"
+              />
+            </p>
+            <p>
+              <label for="file" style="cursor: pointer">Upload Image</label>
+            </p>
+            <p>if your using camera, make sure the bardcode occupy good portion of the screen before capture</p>
+          </form>
+          <p><img id="output" width="200" /></p>
+        </div>
+        <div id="dc"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  var loadFile = function (event) {
+    var image = document.getElementById("output");
+    image.src = URL.createObjectURL(event.target.files[0]);
+    handleImageUpload(event);
+  };
+  const handleImageUpload = (event) => {
+    const files = event.target.files;
+    const formData = new FormData();
+    formData.append("myFile", files[0]);
+
+    fetch("http://127.0.0.1:8000/fromqr/", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        let langselector = document.getElementById("dc");
+        langselector.innerHTML =
+          '<h3>TResult</h3>\
+<p class="m-5" style="background-color: bisque; border-radius: 5px">\
+    ' +
+          data.text +
+          "\
+    </p>";
+        console.log(data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
+  function convert() {
+    var textinput = document.getElementById("texttoq").value;
+    console.log(textinput);
+    fetch("http://127.0.0.1:8000/toqr/", {
+      method: "POST",
+      body: JSON.stringify({
+        text: textinput,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        let langselector = document.getElementById("img");
+        langselector.innerHTML =
+          '<h3>Qrcode</h3>\
+		<img src="data:image/png;base64,' +
+          data.qrcode +
+          '">';
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+</script>
